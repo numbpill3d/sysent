@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Liminal Space - System v1.98</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'MS Sans Serif', sans-serif;
+            font-size: 11px;
+            background: #c0c0c0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+            image-rendering: pixelated;
+        }
+        
+        #background-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .floating-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .floating-image {
+            position: absolute;
+            width: 120px;
+            height: 80px;
+            background: #c0c0c0;
+            border: 2px outset #c0c0c0;
+            animation: float 6s ease-in-out infinite;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            color: #000000;
+            text-align: center;
+            image-rendering: pixelated;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .floating-image:nth-child(1) {
+            top: 15%;
+            left: 10%;
+            animation-delay: 0s;
+            animation-duration: 8s;
+        }
+        
+        .floating-image:nth-child(2) {
+            top: 25%;
+            right: 15%;
+            animation-delay: 2s;
+            animation-duration: 7s;
+        }
+        
+        .floating-image:nth-child(3) {
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+            animation-duration: 9s;
+        }
+        
+        .floating-image:nth-child(4) {
+            bottom: 30%;
+            right: 10%;
+            animation-delay: 1s;
+            animation-duration: 6s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(2deg); }
+            50% { transform: translateY(-10px) rotate(-2deg); }
+            75% { transform: translateY(-15px) rotate(1deg); }
+        }
+        
+        .main-card {
+            background: #c0c0c0;
+            border: 3px outset #c0c0c0;
+            padding: 20px;
+            max-width: 800px;
+            width: 90%;
+            animation: mainFloat 10s ease-in-out infinite;
+            position: relative;
+            z-index: 20;
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        @keyframes mainFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .title-bar {
+            background: linear-gradient(90deg, #000080 0%, #000040 100%);
+            color: white;
+            padding: 4px 8px;
+            margin: -20px -20px 15px -20px;
+            font-weight: bold;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .window-controls {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .window-button {
+            width: 16px;
+            height: 14px;
+            background: #c0c0c0;
+            border: 1px outset #c0c0c0;
+            font-size: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: black;
+        }
+        
+        .window-button:active {
+            border: 1px inset #c0c0c0;
+        }
+        
+        .profile-header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #000000;
+        }
+        
+        .profile-avatar {
+            width: 64px;
+            height: 64px;
+            background: #808080;
+            border: 2px inset #c0c0c0;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .tab-container {
+            margin-bottom: 15px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            margin-bottom: 15px;
+            justify-content: center;
+            border-bottom: 2px inset #c0c0c0;
+        }
+        
+        .tab-button {
+            background: #c0c0c0;
+            border: 2px outset #c0c0c0;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: none;
+            color: #000000;
+            font-family: 'MS Sans Serif', sans-serif;
+            font-size: 11px;
+            font-weight: normal;
+            margin-bottom: -2px;
+        }
+        
+        .tab-button:hover {
+            background: #e0e0e0;
+        }
+        
+        .tab-button:active {
+            border: 2px inset #c0c0c0;
+        }
+        
+        .tab-button.active {
+            background: #c0c0c0;
+            border: 2px outset #c0c0c0;
+            border-bottom: 2px solid #c0c0c0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .tab-content {
+            display: none;
+            background: #c0c0c0;
+            padding: 15px;
+            border: 2px inset #c0c0c0;
+            min-height: 300px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .dropdown {
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .dropdown-button {
+            background: #c0c0c0;
+            border: 2px outset #c0c0c0;
+            padding: 4px 8px;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            font-family: 'MS Sans Serif', sans-serif;
+            color: #000000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+        }
+        
+        .dropdown-button:active {
+            border: 2px inset #c0c0c0;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: #c0c0c0;
+            border: 2px outset #c0c0c0;
+            width: 100%;
+            z-index: 100;
+            max-height: 150px;
+            overflow-y: auto;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dropdown-content.show {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: 4px 8px;
+            cursor: pointer;
+            border-bottom: 1px solid #808080;
+            font-size: 11px;
+        }
+        
+        .dropdown-item:hover {
+            background: #000080;
+            color: white;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .gallery-item {
+            aspect-ratio: 1;
+            background: #ffffff;
+            border: 2px inset #c0c0c0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #000000;
+            font-size: 9px;
+            text-align: center;
+            image-rendering: pixelated;
+        }
+        
+        .gallery-item:active {
+            border: 2px outset #c0c0c0;
+        }
+        
+        .gallery-item:hover {
+            background: #000080;
+            color: white;
+        }
+        
+        .widget {
+            background: #c0c0c0;
+            border: 2px inset #c0c0c0;
+            padding: 10px;
+            margin: 8px 0;
+        }
+        
+        .widget-title {
+            color: #000000;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #808080;
+            padding-bottom: 2px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 6px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 6px;
+            background: #ffffff;
+            border: 1px inset #c0c0c0;
+        }
+        
+        .stat-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #000080;
+        }
+        
+        .stat-label {
+            font-size: 9px;
+            color: #000000;
+        }
+        
+        .interactive-widget {
+            position: relative;
+            height: 180px;
+            background: #000000;
+            border: 2px inset #c0c0c0;
+            overflow: hidden;
+        }
+        
+        #widget-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .console-widget {
+            background: #000000;
+            color: #00ff00;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            border: 2px inset #c0c0c0;
+            height: 120px;
+            overflow-y: auto;
+        }
+        
+        .progress-bar {
+            background: #c0c0c0;
+            border: 2px inset #c0c0c0;
+            height: 20px;
+            margin: 8px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: #000080;
+            height: 100%;
+            width: 0%;
+            animation: progressLoad 3s ease-in-out infinite;
+        }
+        
+        @keyframes progressLoad {
+            0% { width: 0%; }
+            50% { width: 75%; }
+            100% { width: 0%; }
+        }
+        
+        .button-98 {
+            background: #c0c0c0;
+            border: 2px outset #c0c0c0;
+            padding: 4px 12px;
+            font-family: 'MS Sans Serif', sans-serif;
+            font-size: 11px;
+            cursor: pointer;
+            margin: 4px;
+        }
+        
+        .button-98:active {
+            border: 2px inset #c0c0c0;
+        }
+        
+        .button-98:hover {
+            background: #e0e0e0;
+        }
+        
+        .status-bar {
+            background: #c0c0c0;
+            border: 1px inset #c0c0c0;
+            padding: 2px 6px;
+            font-size: 10px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .scan-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.05) 2px,
+                rgba(0, 0, 0, 0.05) 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            .main-card {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            .tab-buttons {
+                flex-direction: column;
+            }
+            
+            .tab-button {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .floating-image {
+                width: 80px;
+                height: 60px;
+                font-size: 8px;
+            }
+            
+            .gallery {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                gap: 6px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .floating-image {
+                display: none;
+            }
+            
+            .title-bar {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scan-lines"></div>
+    <canvas id="background-canvas"></canvas>
+    
+    <div class="floating-container">
+        <div class="floating-image">BITMAP001.BMP</div>
+        <div class="floating-image">TEXTURE02.TGA</div>
+        <div class="floating-image">SPRITE003.PCX</div>
+        <div class="floating-image">MESH004.3DS</div>
+        
+        <div class="main-card">
+            <div class="title-bar">
+                <span>Digital Entity Profile - [System v1.98]</span>
+                <div class="window-controls">
+                    <div class="window-button">_</div>
+                    <div class="window-button">□</div>
+                    <div class="window-button">×</div>
+                </div>
+            </div>
+            
+            <div class="profile-header">
+                <div class="profile-avatar">SYS</div>
+                <h2>DIGITAL_ENTITY.EXE</h2>
+                <p>Status: <span class="blink">ONLINE</span></p>
+            </div>
+            
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <div class="tab-button active" data-tab="info">General</div>
+                    <div class="tab-button" data-tab="gallery">Gallery</div>
+                    <div class="tab-button" data-tab="widgets">System</div>
+                    <div class="tab-button" data-tab="settings">Advanced</div>
+                </div>
+                
+                <div class="tab-content active" id="info">
+                    <h3>System Information</h3>
+                    <p>Digital Entity Management System v1.98 - Build 2404<br>
+                    Copyright (C) 1998 Liminal Software Corporation</p>
+                    
+                    <div class="dropdown">
+                        <div class="dropdown-button" onclick="toggleDropdown('status-dropdown')">
+                            System Status <span>▼</span>
+                        </div>
+                        <div class="dropdown-content" id="status-dropdown">
+                            <div class="dropdown-item">Core Systems: OPERATIONAL</div>
+                            <div class="dropdown-item">Memory: 128MB RAM (78% in use)</div>
+                            <div class="dropdown-item">Graphics: 3dfx Voodoo2 12MB</div>
+                            <div class="dropdown-item">Sound: Sound Blaster 16</div>
+                            <div class="dropdown-item">Network: TCP/IP Stack Loaded</div>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown">
+                        <div class="dropdown-button" onclick="toggleDropdown('log-dropdown')">
+                            Event Log <span>▼</span>
+                        </div>
+                        <div class="dropdown-content" id="log-dropdown">
+                            <div class="dropdown-item">15:42:11 - 3D renderer initialized</div>
+                            <div class="dropdown-item">14:30:05 - DirectX 6.0 detected</div>
+                            <div class="dropdown-item">13:15:23 - Texture cache cleared</div>
+                            <div class="dropdown-item">12:00:01 - System boot complete</div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <small>Processing digital memories...</small>
+                </div>
+                
+                <div class="tab-content" id="gallery">
+                    <h3>Texture Library</h3>
+                    <p>Available bitmap resources (8-bit indexed color):</p>
+                    <div class="gallery">
+                        <div class="gallery-item">TEX001.BMP<br>256x256</div>
+                        <div class="gallery-item">TEX002.BMP<br>128x128</div>
+                        <div class="gallery-item">TEX003.TGA<br>512x512</div>
+                        <div class="gallery-item">TEX004.PCX<br>256x256</div>
+                        <div class="gallery-item">TEX005.BMP<br>64x64</div>
+                        <div class="gallery-item">TEX006.TGA<br>128x128</div>
+                        <div class="gallery-item">TEX007.PCX<br>256x256</div>
+                        <div class="gallery-item">TEX008.BMP<br>512x512</div>
+                    </div>
+                    
+                    <div class="status-bar">
+                        <span>8 objects</span>
+                        <span>Total: 2.4MB</span>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="widgets">
+                    <h3>System Monitor</h3>
+                    
+                    <div class="widget">
+                        <div class="widget-title">Performance Counters</div>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value">60</div>
+                                <div class="stat-label">FPS</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">1024</div>
+                                <div class="stat-label">POLYS</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">78%</div>
+                                <div class="stat-label">RAM</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">45°C</div>
+                                <div class="stat-label">CPU</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget">
+                        <div class="widget-title">3D Accelerator</div>
+                        <div class="interactive-widget">
+                            <canvas id="widget-canvas"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="widget">
+                        <div class="widget-title">System Console</div>
+                        <div class="console-widget" id="console">
+                            C:\SYSTEM> dir *.exe<br>
+                            DIGITAL.EXE    245,760  04-24-98  3:42p<br>
+                            RENDER.EXE     186,368  04-24-98  3:42p<br>
+                            MEMORY.EXE      98,304  04-24-98  3:42p<br>
+                            <span class="blink">C:\SYSTEM>_</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="settings">
+                    <h3>Configuration Manager</h3>
+                    
+                    <div class="dropdown">
+                        <div class="dropdown-button" onclick="toggleDropdown('display-dropdown')">
+                            Display Properties <span>▼</span>
+                        </div>
+                        <div class="dropdown-content" id="display-dropdown">
+                            <div class="dropdown-item">Resolution: 800x600x16</div>
+                            <div class="dropdown-item">Refresh Rate: 75Hz</div>
+                            <div class="dropdown-item">Color Quality: High Color (16 bit)</div>
+                            <div class="dropdown-item">Hardware Acceleration: Full</div>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown">
+                        <div class="dropdown-button" onclick="toggleDropdown('sound-dropdown')">
+                            Sound Configuration <span>▼</span>
+                        </div>
+                        <div class="dropdown-content" id="sound-dropdown">
+                            <div class="dropdown-item">Device: Sound Blaster 16</div>
+                            <div class="dropdown-item">Port: 220h IRQ: 5 DMA: 1</div>
+                            <div class="dropdown-item">Sample Rate: 44.1 kHz</div>
+                            <div class="dropdown-item">MIDI: MPU-401 Compatible</div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget">
+                        <div class="widget-title">Control Panel</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                            <button class="button-98" onclick="showDialog('About')">About</button>
+                            <button class="button-98" onclick="showDialog('Help')">Help</button>
+                            <button class="button-98" onclick="showDialog('Exit')">Exit</button>
+                        </div>
+                    </div>
+                    
+                    <div class="widget">
+                        <div class="widget-title">Memory Manager</div>
+                        <p>Conventional Memory: 640KB</p>
+                        <div class="progress-bar">
+                            <div style="background: #000080; height: 100%; width: 45%;"></div>
+                        </div>
+                        <p>Extended Memory: 127MB</p>
+                        <div class="progress-bar">
+                            <div style="background: #000080; height: 100%; width: 78%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="status-bar">
+                <span>Ready</span>
+                <span>Polygons: 1024</span>
+                <span>15:42</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced Background Three.js Scene
+        let scene, camera, renderer, particles, geometries = [], animationId;
+        
+        function initBackground() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ 
+                canvas: document.getElementById('background-canvas'),
+                alpha: true,
+                antialias: false
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0xc0c0c0, 1);
+            
+            // Enhanced particle system
+            const particleGeometry = new THREE.BufferGeometry();
+            const particleCount = 200;
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            const sizes = new Float32Array(particleCount);
+            
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 40;
+                positions[i + 1] = (Math.random() - 0.5) * 40;
+                positions[i + 2] = (Math.random() - 0.5) * 40;
+                
+                // Stark Windows 98 colors
+                const colorChoice = Math.random();
+                if (colorChoice < 0.3) {
+                    colors[i] = 0;     // R - Blue
+                    colors[i + 1] = 0; // G
+                    colors[i + 2] = 0.5; // B
+                } else if (colorChoice < 0.6) {
+                    colors[i] = 0.5;   // R - Gray
+                    colors[i + 1] = 0.5; // G
+                    colors[i + 2] = 0.5; // B
+                } else {
+                    colors[i] = 1;     // R - White
+                    colors[i + 1] = 1; // G
+                    colors[i + 2] = 1; // B
+                }
+                
+                sizes[i / 3] = Math.random() * 0.1 + 0.05;
+            }
+            
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+            
+            const particleMaterial = new THREE.PointsMaterial({
+                size: 0.1,
+                vertexColors: true,
+                transparent: false,
+                sizeAttenuation: false
+            });
+            
+            particles = new THREE.Points(particleGeometry, particleMaterial);
+            scene.add(particles);
+            
+            // Enhanced geometric objects
+            const geometryTypes = [
+                () => new THREE.BoxGeometry(0.3, 0.3, 0.3),
+                () => new THREE.SphereGeometry(0.2, 8, 6),
+                () => new THREE.ConeGeometry(0.2, 0.4, 6),
+                () => new THREE.CylinderGeometry(0.1, 0.2, 0.4, 6),
+                () => new THREE.OctahedronGeometry(0.2),
+                () => new THREE.TetrahedronGeometry(0.25)
+            ];
+            
+            for (let i = 0; i < 15; i++) {
+                const geometry = geometryTypes[Math.floor(Math.random() * geometryTypes.length)]();
+                
+                const materialType = Math.random();
+                let material;
+                
+                if (materialType < 0.4) {
+                    material = new THREE.MeshBasicMaterial({
+                        color: 0x000080,
+                        wireframe: true,
+                        transparent: true,
+                        opacity: 0.7
+                    });
+                } else if (materialType < 0.7) {
+                    material = new THREE.MeshBasicMaterial({
+                        color: 0x808080,
+                        wireframe: false,
+                        transparent: true,
+                        opacity: 0.6
+                    });
+                } else {
+                    material = new THREE.MeshBasicMaterial({
+                        color: 0xffffff,
+                        wireframe: true,
+                        transparent: true,
+                        opacity: 0.5
+                    });
+                }
+                
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(
+                    (Math.random() - 0.5) * 20,
+                    (Math.random() - 0.5) * 20,
+                    (Math.random() - 0.5) * 20
+                );
+                
+                mesh.userData = { 
+                    originalPosition: mesh.position.clone(),
+                    floatSpeed: 0.005 + Math.random() * 0.02,
+                    rotationSpeed: {
+                        x: (Math.random() - 0.5) * 0.02,
+                        y: (Math.random() - 0.5) * 0.02,
+                        z: (Math.random() - 0.5) * 0.02
+                    },
+                    orbitRadius: Math.random() * 2 + 0.5,
+                    orbitSpeed: (Math.random() - 0.5) * 0.01
+                };
+                
+                geometries.push(mesh);
+                scene.add(mesh);
+            }
+            
+            camera.position.z = 8;
+        }
+        
+        function animateBackground() {
+            animationId = requestAnimationFrame(animateBackground);
+            
+            const time = Date.now() * 0.001;
+            
+            // Enhanced particle animation
+            if (particles) {
+                particles.rotation.y += 0.003;
+                particles.rotation.x += 0.001;
+                
+                const positions = particles.geometry.attributes.position.array;
+                for (let i = 0; i < positions.length; i += 3) {
+                    positions[i + 1] += Math.sin(time + i) * 0.002;
+                }
+                particles.geometry.attributes.position.needsUpdate = true;
+            }
+            
+            // Enhanced geometry animation
+            geometries.forEach((mesh, index) => {
+                const userData = mesh.userData;
+                
+                // Rotation
+                mesh.rotation.x += userData.rotationSpeed.x;
+                mesh.rotation.y += userData.rotationSpeed.y;
+                mesh.rotation.z += userData.rotationSpeed.z;
+                
+                // Complex orbital motion
+                const orbitTime = time * userData.orbitSpeed;
+                mesh.position.x = userData.originalPosition.x + Math.cos(orbitTime) * userData.orbitRadius;
+                mesh.position.y = userData.originalPosition.y + Math.sin(time * userData.floatSpeed) * 0.8;
+                mesh.position.z = userData.originalPosition.z + Math.sin(orbitTime) * userData.orbitRadius;
+                
+                // Pulsing opacity
+                if (mesh.material.transparent) {
+                    mesh.material.opacity = 0.3 + Math.sin(time * 2 + index) * 0.3;
+                }
+            });
+            
+            // Camera gentle movement
+            camera.position.x = Math.sin(time * 0.1) * 0.5;
+            camera.position.y = Math.cos(time * 0.15) * 0.3;
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Enhanced Widget Three.js Scene
+        let widgetScene, widgetCamera, widgetRenderer, widgetObjects = [];
+        
+        function initWidget() {
+            const canvas = document.getElementById('widget-canvas');
+            if (!canvas) return;
+            
+            widgetScene = new THREE.Scene();
+            widgetCamera = new THREE.PerspectiveCamera(75, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
+            widgetRenderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+            widgetRenderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+            widgetRenderer.setClearColor(0x000000, 1);
+            
+            // Create multiple interactive objects
+            const shapes = [
+                new THREE.BoxGeometry(0.8, 0.8, 0.8),
+                new THREE.SphereGeometry(0.5, 12, 8),
+                new THREE.ConeGeometry(0.4, 1, 8)
+            ];
+            
+            shapes.forEach((geometry, index) => {
+                const material = new THREE.MeshBasicMaterial({
+                    color: index === 0 ? 0x000080 : index === 1 ? 0x808080 : 0xffffff,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.x = (index - 1) * 1.5;
+                mesh.userData = {
+                    originalX: mesh.position.x,
+                    mouseInfluence: 0
+                };
+                
+                widgetObjects.push(mesh);
+                widgetScene.add(mesh);
+            });
+            
+            widgetCamera.position.z = 4;
+            
+            // Enhanced mouse interaction
+            let mouseX = 0, mouseY = 0;
+            canvas.addEventListener('mousemove', (event) => {
+                const rect = canvas.getBoundingClientRect();
+                mouseX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                mouseY = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            });
+            
+            canvas.addEventListener('click', () => {
+                widgetObjects.forEach(obj => {
+                    obj.material.wireframe = !obj.material.wireframe;
+                });
+            });
+            
+            function animateWidget() {
+                requestAnimationFrame(animateWidget);
+                
+                const time = Date.now() * 0.001;
+                
+                widgetObjects.forEach((obj, index) => {
+                    // Base rotation
+                    obj.rotation.x += 0.01 + index * 0.005;
+                    obj.rotation.y += 0.008 + index * 0.003;
+                    
+                    // Mouse influence
+                    obj.userData.mouseInfluence = THREE.MathUtils.lerp(obj.userData.mouseInfluence, mouseX * 0.5, 0.1);
+                    obj.rotation.x += obj.userData.mouseInfluence;
+                    obj.rotation.y += mouseY * 0.3;
+                    
+                    // Floating motion
+                    obj.position.y = Math.sin(time + index) * 0.3;
+                    obj.position.x = obj.userData.originalX + Math.cos(time * 0.5 + index) * 0.2;
+                    
+                    // Color shifting
+                    const hue = (time + index) % 1;
+                    if (index === 1) {
+                        obj.material.color.setHSL(hue, 0.5, 0.5);
+                    }
+                });
+                
+                if (widgetRenderer && widgetScene && widgetCamera) {
+                    widgetRenderer.render(widgetScene, widgetCamera);
+                }
+            }
+            animateWidget();
+        }
+        
+        // Tab functionality
+        function initTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.getAttribute('data-tab');
+                    
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    button.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+                    
+                    if (targetTab === 'widgets') {
+                        setTimeout(initWidget, 100);
+                    }
+                });
+            });
+        }
+        
+        // Dropdown functionality
+        function toggleDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const button = dropdown.previousElementSibling;
+            const icon = button.querySelector('span');
+            
+            dropdown.classList.toggle('show');
+            icon.textContent = dropdown.classList.contains('show') ? '▲' : '▼';
+            
+            document.querySelectorAll('.dropdown-content').forEach(dd => {
+                if (dd.id !== dropdownId && dd.classList.contains('show')) {
+                    dd.classList.remove('show');
+                    dd.previousElementSibling.querySelector('span').textContent = '▼';
+                }
+            });
+        }
+        
+        // Gallery functionality
+        function initGallery() {
+            const galleryItems = document.querySelectorAll('.gallery-item');
+            galleryItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    item.style.background = '#000080';
+                    item.style.color = 'white';
+                    setTimeout(() => {
+                        item.style.background = '#ffffff';
+                        item.style.color = '#000000';
+                    }, 150);
+                });
+            });
+        }
+        
+        // Dialog system
+        function showDialog(type) {
+            let message = '';
+            switch(type) {
+                case 'About':
+                    message = 'Digital Entity Management System v1.98\\nBuild 2404.1998\\n\\nCopyright (C) 1998 Liminal Software Corporation\\nAll rights reserved.';
+                    break;
+                case 'Help':
+                    message = 'Help Topics:\\n- Use tabs to navigate between sections\\n- Click gallery items to select\\n- Monitor system performance in real-time\\n- Configure display and audio settings';
+                    break;
+                case 'Exit':
+                    message = 'Are you sure you want to exit the Digital Entity Management System?';
+                    break;
+            }
+            alert(message.replace(/\\n/g, '\n'));
+        }
+        
+        // Console animation
+        function animateConsole() {
+            const console = document.getElementById('console');
+            const commands = [
+                'C:\\SYSTEM> mem',
+                '655360 bytes total conventional memory',
+                '598832 bytes available to MS-DOS',
+                '133169152 bytes total extended memory',
+                'C:\\SYSTEM> dir textures',
+                'TEX001.BMP    65,536  04-24-98  2:15p',
+                'TEX002.TGA    32,768  04-24-98  2:16p',
+                'C:\\SYSTEM> render -mode 3dfx',
+                '3dfx Voodoo2 detected',
+                'Hardware acceleration: ENABLED',
+                '<span class="blink">C:\\SYSTEM>_</span>'
+            ];
+            
+            let currentLine = 0;
+            const interval = setInterval(() => {
+                if (currentLine < commands.length - 1) {
+                    console.innerHTML += '<br>' + commands[currentLine];
+                    console.scrollTop = console.scrollHeight;
+                    currentLine++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 2000);
+        }
+        
+        // Handle window resize
+        function handleResize() {
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+            
+            if (widgetCamera && widgetRenderer) {
+                const canvas = document.getElementById('widget-canvas');
+                if (canvas) {
+                    widgetCamera.aspect = canvas.offsetWidth / canvas.offsetHeight;
+                    widgetCamera.updateProjectionMatrix();
+                    widgetRenderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+                }
+            }
+        }
+        
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            initBackground();
+            animateBackground();
+            initTabs();
+            initGallery();
+            
+            setTimeout(animateConsole, 1000);
+            
+            window.addEventListener('resize', handleResize);
+        });
+        
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        });
+    </script>
+</body>
+</html>
